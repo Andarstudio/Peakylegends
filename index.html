@@ -39,6 +39,7 @@ nav button.mid{flex:none;background:var(--or);color:#fff;width:70px;height:70px;
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="part2.js"></script>
 <script>
 if(!/^https?:$/.test(location.protocol)){document.getElementById("app").innerHTML='<div style="max-width:340px;margin:12vh auto;padding:16px;text-align:center;color:#f2f2f3;font:16px system-ui"><div style="font-size:42px">⚠️</div><h2>https:// хаяг хэрэгтэй</h2><p style="color:#85858d">Файлыг утасны Download хавтсаас нээвэл Firebase нэвтрэлт ажиллахгүй. GitHub Pages эсвэл Firebase Hosting дээр байрлуулж https:// хаягаар нээнэ үү.</p></div>';throw new Error("needs https")}
 firebase.initializeApp({apiKey:"AIzaSyDI4y_meplHojsu9ofYinjbPAlwol38DyE",authDomain:"peakylegendsso2.firebaseapp.com",projectId:"peakylegendsso2",storageBucket:"peakylegendsso2.firebasestorage.app",messagingSenderId:"117552286499",appId:"1:117552286499:web:27182bb4a809b2465cda96"});
@@ -47,7 +48,7 @@ const LV=[0,500,750,900,1051,1200,1350,1530,1750,2000];
 const lvl=e=>{let l=1;LV.forEach((t,i)=>{if(e>=t)l=i+1});return l};
 const tier=l=>l<=4?"Bronze":l<=7?"Silver":l<=9?"Gold":"Legend";
 const auth=firebase.auth(),db=firebase.firestore(),FV=firebase.firestore.FieldValue;
-let me=null,users={},matches=[],tab="home",banner=true,mapSel="all",unsubs=[],hb=null;
+let me=null,users={},matches=[],tours=[],tab="home",banner=true,mapSel="all",unsubs=[],hb=null;
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const av=(u,c="")=>`<img class="av ${c}" src="${esc(u?.photo||"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==")}" alt="">`;
@@ -71,13 +72,14 @@ auth.onAuthStateChanged(async u=>{
  try{if(!(await r.get()).exists)await r.set({name:u.displayName||(u.email||"Тоглогч").split("@")[0],photo:u.photoURL||"",elo:1000,wins:0,losses:0,coins:0,mapElo:{},friends:[],friendId:String(Math.floor(100000+Math.random()*900000))})}catch(e){return loginView("Firestore rules: "+e.message)}
  unsubs.push(db.collection("users").onSnapshot(q=>{users={};q.forEach(d=>users[d.id]={id:d.id,...d.data()});me=users[u.uid];render()}));
  unsubs.push(db.collection("matches").orderBy("time").onSnapshot(q=>{matches=q.docs.map(d=>({id:d.id,...d.data()}));render()}));
+ unsubs.push(db.collection("tournaments").onSnapshot(q=>{tours=q.docs.map(d=>({id:d.id,...d.data()}));render()},()=>{}));
  const beat=()=>r.update({lastSeen:Date.now()}).catch(()=>{});beat();hb=setInterval(beat,60000);
 });
 
 const NAV=[["home","⌂","Нүүр"],["friends","👥","Найзууд"],["play","⚔","Тоглох"],["rank","🏆","Чансаа"],["shop","🛍","Дэлгүүр"]];
 function render(){
  if(!me)return;if(document.activeElement?.tagName=="INPUT")return;
- const view={home,friends,play,rank,shop,me:prof}[tab]();
+ const view={home,friends,play,rank,shop,tour,me:prof}[tab]();
  const mine=matches.filter(m=>m.status!="played"&&(m.players||[]).includes(me.id)).length+(isMod()?matches.filter(m=>m.status=="pending").length:0);
  $("#app").innerHTML=(banner?`<div class="ban"><span style="font-size:26px">🏆</span><div class="sp"><b>SEASON 1 ЭХЭЛЛЭЭ!</b><small>Чансаагаа ахиулж, оргилд гар!</small></div><span onclick="banner=false;render()" style="font-size:22px">✕</span></div>`:"")+
  `<div class="top"><div class="logo">SO2 <b>FACEIT</b><small>MONGOLIA</small></div><button class="ib gd" onclick="tab='rank';render()">♛</button><div class="sp"></div>
@@ -95,6 +97,7 @@ function home(){
  <div class="g3"><div class="card"><div class="lbl">SF Coin</div><b class="gd">● ${me.coins||0}</b></div>
  <div class="card"><div class="lbl">Өнөөдөр</div><b>${today}/3</b><div class="bar" style="margin:0"><i style="width:${Math.min(100,today/3*100)}%"></i></div><div class="mu">тоглолт</div></div>
  <div class="card"><div class="lbl">Battle pass</div><b>Lv ${Math.floor(played/3)}</b><div class="mu">Season 1</div></div></div>
+ <div class="card row" onclick="tab='tour';render()"><span style="font-size:26px">🏆</span><div class="sp"><b>Тэмцээнүүд</b><div class="mu">${tours.filter(t=>new Date(t.time)>Date.now()).length} удахгүй болох</div></div><span class="mu">›</span></div>
  <div class="card"><div class="lbl">Онлайн найзууд</div><div style="margin-top:8px">${fr.map(u=>`<div class="row" onclick="openUser('${u.id}')" style="margin-bottom:6px"><span class="on-dot"></span>${esc(u.name)}</div>`).join("")||`<span class="mu">Одоогоор хэн ч онлайн биш</span>`}</div></div>
  <div class="card row"><span style="font-size:24px">🎁</span><div class="sp"><b>Өнөөдрийн challenge</b><div class="mu">3 тоглолт тогло · ${Math.min(today,3)}/3</div></div></div>`;
 }
@@ -114,7 +117,7 @@ function mcard(m,act){
  ${m.shot?`<img src="${m.shot}" style="width:100%;border-radius:10px;margin-top:8px" onclick="zoom(this.src)">`:""}`:""}</div>`}
 function play(){
  const up=matches.filter(m=>m.status!="played"),past=matches.filter(m=>m.status=="played").reverse();
- return `<h2>Тоглолтууд</h2>${isAdmin()?`<div class="card"><b>Админ: шинэ тоглолт</b><input id="mt" type="datetime-local" style="margin-top:8px"><select id="mm">${MAPS.map(x=>`<option>${x}</option>`).join("")}</select><button class="s p" onclick="addM()">Нэмэх</button></div>`:""}
+ return `<button class="s p" style="margin-bottom:12px" onclick="tab='tour';render()">🏆 Тэмцээнүүд →</button><h2>Тоглолтууд</h2>${isAdmin()?`<div class="card"><b>Админ: шинэ тоглолт</b><input id="mt" type="datetime-local" style="margin-top:8px"><select id="mm">${MAPS.map(x=>`<option>${x}</option>`).join("")}</select><button class="s p" onclick="addM()">Нэмэх</button></div>`:""}
  ${up.map(m=>mcard(m,1)).join("")||`<p class="mu">Товлосон тоглолт алга.</p>`}
  <h2 style="margin-top:20px">Өнгөрсөн тоглолтууд</h2>${past.slice(0,20).map(m=>mcard(m,0)).join("")||`<p class="mu">Хоосон.</p>`}`}
 function rank(){
@@ -149,22 +152,4 @@ function finish(id){const m=matches.find(x=>x.id==id),p=m.players||[],pen=m.stat
  <div class="mu" style="margin:4px 0">Дуустал тоглосныг тэмдэглэ, гарсныг тайл</div>
  ${p.map((pid,i)=>`<label class="row" style="padding:5px 0"><input type="checkbox" class="pl" value="${pid}" checked style="width:22px;height:22px;margin:0"><span class="sp">${esc(users[pid]?.name||"?")} <span class="mu">Баг ${i<5?"A":"B"}</span></span></label>`).join("")}
  ${pen?"":`<div class="mu" style="margin:10px 0 4px">Дүнгийн screenshot</div><input type="file" accept="image/*" onchange="pickShot(this.files[0])">`}
- <div class="row" style="flex-wrap:wrap;margin-top:6px"><button class="s p" onclick="saveFinish('${id}')">✅ Батлах, ELO өгөх</button>${pen?`<button class="s" onclick="rejectRes('${id}')">❌ Татгалзах</button>`:""}<button class="s" onclick="$('#modal').style.display='none'">Хаах</button></div>`;
- $("#modal").style.display="flex"}
-function pickShot(f){if(!f)return;const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const k=Math.min(1,800/i.width),c=document.createElement("canvas");c.width=i.width*k;c.height=i.height*k;c.getContext("2d").drawImage(i,0,0,c.width,c.height);window._shot=c.toDataURL("image/jpeg",.55)};i.src=r.result};r.readAsDataURL(f)}
-function zoom(src){const d=document.createElement("div");d.style.cssText="position:fixed;inset:0;background:#000e;z-index:20;display:grid;place-items:center;overflow:auto";d.innerHTML=`<img src="${src}" style="max-width:100%;max-height:100%">`;d.onclick=()=>d.remove();document.body.appendChild(d)}
-function submitRes(id){window._shot=null;$("#mb").innerHTML=`<b>Дүн илгээх</b><p class="mu">Тоглолтын дүнгийн screenshot оруул. Модератор шалгаад баталмагц ELO орно.</p><select id="sw"><option value="A">Баг A хожсон</option><option value="B">Баг B хожсон</option></select><input type="file" accept="image/*" onchange="pickShot(this.files[0])"><div class="row"><button class="s p" onclick="saveSubmit('${id}')">Илгээх</button><button class="s" onclick="$('#modal').style.display='none'">Болих</button></div>`;$("#modal").style.display="flex"}
-async function saveSubmit(id){if(!window._shot)return alert("Эхлээд screenshot сонгоно уу (1-2 секунд хүлээгээд дахин дарна)");
- try{await db.collection("matches").doc(id).update({status:"pending",winner:$("#sw").value,shot:window._shot,submittedBy:me.id});$("#modal").style.display="none"}catch(e){alert(e.message)}}
-async function rejectRes(id){if(!confirm("Татгалзах уу? Тоглогч дахин илгээнэ."))return;
- try{await db.collection("matches").doc(id).update({status:"upcoming",winner:"",shot:"",rejectedBy:me.id});$("#modal").style.display="none"}catch(e){alert(e.message)}}
-async function saveFinish(id){const m=matches.find(x=>x.id==id),p=m.players||[],w=$("#fw").value,shot=window._shot||m.shot||"";
- if(!shot)return alert("Баталгаажуулахад screenshot заавал хэрэгтэй");
- const ok=[...document.querySelectorAll(".pl:checked")].map(x=>x.value),quits=p.filter(x=>!ok.includes(x)),b=db.batch();
- p.forEach((pid,i)=>{const q=quits.includes(pid),win=!q&&(i<5?"A":"B")==w;
-  b.update(db.collection("users").doc(pid),q?{elo:FV.increment(-50),losses:FV.increment(1),quits:FV.increment(1),["mapElo."+m.map]:FV.increment(-50)}:{elo:FV.increment(win?25:-25),wins:FV.increment(win?1:0),losses:FV.increment(win?0:1),coins:FV.increment(win?25:10),["mapElo."+m.map]:FV.increment(win?25:-25)})});
- b.update(db.collection("matches").doc(id),{status:"played",winner:w,quits,shot,approvedBy:me.id});
- try{await b.commit();$("#modal").style.display="none"}catch(e){alert(e.message)}}
-async function setMod(id,v){try{await db.collection("users").doc(id).update({role:v?"mod":FV.delete()})}catch(e){alert(e.message)}}
-function addMod(){const v=$("#mid").value.trim(),u=Object.values(users).find(x=>x.friendId==v);if(!u)return alert("ID олдсонгүй");setMod(u.id,true)}
-</script></body></html>
+ <div class="row" style="flex-wrap:wrap;margin-top:6px"><button class="s p" onclick="saveFinish('${id}')">✅ Батлах, ELO өгөх</button>${pen?`<button class="s" onclick="rejectRes('${id}')">❌ Татгалзах
