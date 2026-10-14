@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="mn"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0b0c"><title>SO2 MONGOLIA</title>
+<style>
+:root{--bg:#0b0b0c;--cd:#151517;--ln:#252528;--tx:#f2f2f3;--mu:#85858d;--or:#ff5500;--gd:#ffc21a;--ok:#2fd06f}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px system-ui,sans-serif;padding-bottom:110px}
+.ban{background:linear-gradient(90deg,#ff5500,#ff8a1f);padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:flex;align-items:center;gap:10px}
+.ban b{display:block;font-size:16px;letter-spacing:.5px}.ban small{opacity:.9}.ban .sp{flex:1;text-align:center}
+.top{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--ln)}
+.logo{font-weight:900;font-size:22px;line-height:1}.logo b{color:var(--or)}.logo small{display:block;font-size:10px;letter-spacing:3px;color:var(--mu);font-weight:600}
+.ib{width:38px;height:38px;border-radius:10px;background:var(--cd);display:grid;place-items:center;position:relative;border:0;color:var(--tx);font-size:18px;padding:0}
+.ib.gd{background:var(--gd);color:#222}.dot{position:absolute;top:-5px;right:-5px;background:#f33;border-radius:50%;width:18px;height:18px;font-size:11px;display:grid;place-items:center;font-weight:700}
+.sp{flex:1}main{padding:14px;max-width:560px;margin:auto}
+.card{background:var(--cd);border:1px solid var(--ln);border-radius:18px;padding:16px;margin-bottom:12px}
+.row{display:flex;align-items:center;gap:12px}
+.av{width:44px;height:44px;border-radius:50%;object-fit:cover;background:#2a2a2e;flex:none}.av.xl{width:84px;height:84px}
+.hex{width:34px;height:34px;display:grid;place-items:center;font-weight:800;font-size:13px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:#c8743a;color:#1a0d04;flex:none}
+.hex.Silver{background:#aab}.hex.Gold{background:var(--gd)}.hex.Legend{background:var(--or);color:#fff}
+.lbl{font-size:12px;letter-spacing:2px;color:var(--mu);text-transform:uppercase}
+.big{font-size:46px;font-weight:800;line-height:1.1}.big small{font-size:22px;color:var(--mu);font-weight:600}
+.bar{height:8px;background:var(--ln);border-radius:9px;overflow:hidden;margin:12px 0 8px}.bar i{display:block;height:100%;background:var(--or);border-radius:9px}
+.cta{width:100%;background:var(--or);color:#fff;border:0;border-radius:12px;padding:18px;font-size:24px;font-weight:800;margin-top:14px;cursor:pointer}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}.g3 .card{margin:0;padding:14px}.g3 b{font-size:26px;display:block;margin:6px 0}
+.mu{color:var(--mu);font-size:13px}.or{color:var(--or)}.gd{color:var(--gd)}
+button.s,input,select{font:inherit;border-radius:10px;border:1px solid var(--ln);background:#1e1e21;color:var(--tx);padding:10px 12px;width:100%;margin-bottom:8px}
+button.s{width:auto;margin:0;padding:7px 12px;font-size:13px;cursor:pointer}button.p{background:var(--or);border-color:var(--or);font-weight:700}
+h2{font-size:18px;margin:4px 0 12px}
+nav{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));max-width:536px;margin:auto;background:#1b1b1ee8;backdrop-filter:blur(10px);border:1px solid #333;border-radius:34px;display:flex;align-items:center;padding:8px 6px;z-index:5}
+nav button{flex:1;background:none;border:0;color:var(--mu);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;border-radius:24px}
+nav button span{font-size:22px}nav button.on{color:var(--or)}
+nav button.mid{flex:none;background:var(--or);color:#fff;width:70px;height:70px;border-radius:50%;margin-top:-26px;justify-content:center;box-shadow:0 4px 18px #ff550066}
+.on-dot{width:10px;height:10px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:6px}
+#modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:9}#modal .card{width:88%;max-width:340px;margin:0;max-height:85vh;overflow:auto}
+.login{max-width:340px;margin:10vh auto;text-align:center;padding:16px}
+</style></head><body>
+<div id="app"></div><div id="modal"><div class="card" id="mb"></div></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+if(!/^https?:$/.test(location.protocol)){document.getElementById("app").innerHTML='<div style="max-width:340px;margin:12vh auto;padding:16px;text-align:center;color:#f2f2f3;font:16px system-ui"><div style="font-size:42px">⚠️</div><h2>https:// хаяг хэрэгтэй</h2><p style="color:#85858d">Файлыг утасны Download хавтсаас нээвэл Firebase нэвтрэлт ажиллахгүй. GitHub Pages эсвэл Firebase Hosting дээр байрлуулж https:// хаягаар нээнэ үү.</p></div>';throw new Error("needs https")}
+firebase.initializeApp({apiKey:"AIzaSyDI4y_meplHojsu9ofYinjbPAlwol38DyE",authDomain:"peakylegendsso2.firebaseapp.com",projectId:"peakylegendsso2",storageBucket:"peakylegendsso2.firebasestorage.app",messagingSenderId:"117552286499",appId:"1:117552286499:web:27182bb4a809b2465cda96"});
+const ADMIN="LKpTRB1jYqX8dsyMqeeSXGNryxP2",MAPS=["Sandstone","Province","Rust","Zone 9","Breeze","Hanami","Sakura","Dune"];
+const LV=[0,500,750,900,1051,1200,1350,1530,1750,2000];
+const lvl=e=>{let l=1;LV.forEach((t,i)=>{if(e>=t)l=i+1});return l};
+const tier=l=>l<=4?"Bronze":l<=7?"Silver":l<=9?"Gold":"Legend";
+const auth=firebase.auth(),db=firebase.firestore(),FV=firebase.firestore.FieldValue;
+let me=null,users={},matches=[],tab="home",banner=true,mapSel="all",unsubs=[],hb=null;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const av=(u,c="")=>`<img class="av ${c}" src="${esc(u?.photo||"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==")}" alt="">`;
+const fmt=t=>new Date(t).toLocaleString("mn-MN",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
+const isAdmin=()=>auth.currentUser?.uid===ADMIN;
+const isMod=()=>isAdmin()||me?.role=="mod";
+const ur=()=>db.collection("users").doc(me.id);
+const online=u=>u.lastSeen&&Date.now()-u.lastSeen<180000;
+
+function loginView(m=""){$("#app").innerHTML=`<div class="login"><div class="logo" style="font-size:34px">SO2 <b>FACEIT</b><small>MONGOLIA</small></div><p class="mu">Монголын Standoff 2 нийгэмлэг</p>
+<button class="cta" style="font-size:17px;padding:14px;margin:0 0 14px" onclick="google()">Google-ээр нэвтрэх</button>
+<input id="em" type="email" placeholder="Имэйл"><input id="pw" type="password" placeholder="Нууц үг (6+)">
+<div class="row"><button class="s sp" onclick="mail(0)">Нэвтрэх</button><button class="s sp" onclick="mail(1)">Бүртгүүлэх</button></div><p style="color:#f66;font-size:13px">${esc(m)}</p></div>`}
+async function google(){try{await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())}catch(e){loginView(e.message)}}
+async function mail(r){try{r?await auth.createUserWithEmailAndPassword($("#em").value,$("#pw").value):await auth.signInWithEmailAndPassword($("#em").value,$("#pw").value)}catch(e){loginView(e.message)}}
+
+auth.onAuthStateChanged(async u=>{
+ unsubs.forEach(f=>f());unsubs=[];clearInterval(hb);
+ if(!u){me=null;return loginView()}
+ const r=db.collection("users").doc(u.uid);
+ try{if(!(await r.get()).exists)await r.set({name:u.displayName||(u.email||"Тоглогч").split("@")[0],photo:u.photoURL||"",elo:1000,wins:0,losses:0,coins:0,mapElo:{},friends:[],friendId:String(Math.floor(100000+Math.random()*900000))})}catch(e){return loginView("Firestore rules: "+e.message)}
+ unsubs.push(db.collection("users").onSnapshot(q=>{users={};q.forEach(d=>users[d.id]={id:d.id,...d.data()});me=users[u.uid];render()}));
+ unsubs.push(db.collection("matches").orderBy("time").onSnapshot(q=>{matches=q.docs.map(d=>({id:d.id,...d.data()}));render()}));
+ const beat=()=>r.update({lastSeen:Date.now()}).catch(()=>{});beat();hb=setInterval(beat,60000);
+});
+
+const NAV=[["home","⌂","Нүүр"],["friends","👥","Найзууд"],["play","⚔","Тоглох"],["rank","🏆","Чансаа"],["shop","🛍","Дэлгүүр"]];
+function render(){
+ if(!me)return;if(document.activeElement?.tagName=="INPUT")return;
+ const view={home,friends,play,rank,shop,me:prof}[tab]();
+ const mine=matches.filter(m=>m.status!="played"&&(m.players||[]).includes(me.id)).length+(isMod()?matches.filter(m=>m.status=="pending").length:0);
+ $("#app").innerHTML=(banner?`<div class="ban"><span style="font-size:26px">🏆</span><div class="sp"><b>SEASON 1 ЭХЭЛЛЭЭ!</b><small>Чансаагаа ахиулж, оргилд гар!</small></div><span onclick="banner=false;render()" style="font-size:22px">✕</span></div>`:"")+
+ `<div class="top"><div class="logo">SO2 <b>FACEIT</b><small>MONGOLIA</small></div><button class="ib gd" onclick="tab='rank';render()">♛</button><div class="sp"></div>
+ <button class="ib" onclick="tab='play';render()">🔔${mine?`<span class="dot">${mine}</span>`:""}</button><span onclick="tab='me';render()">${av(me)}</span></div>
+ <main>${view}</main><nav>${NAV.map(([k,i,l])=>`<button class="${tab==k?"on":""} ${k=="play"?"mid":""}" onclick="tab='${k}';render()"><span>${i}</span>${l}</button>`).join("")}</nav>`;
+}
+function home(){
+ const e=me.elo,l=lvl(e),nx=LV[l],st=LV[l-1],t=tier(l),pct=nx?Math.round((e-st)/(nx-st)*100):100;
+ const today=matches.filter(m=>m.status=="played"&&(m.players||[]).includes(me.id)&&new Date(m.time).toDateString()==new Date().toDateString()).length;
+ const played=(me.wins||0)+(me.losses||0),fr=(me.friends||[]).map(id=>users[id]).filter(Boolean).filter(online);
+ return `<div class="card"><div class="row">${av(me,"xl")}<div class="sp"><b style="font-size:20px">${esc(me.name)}</b><div class="row" style="margin-top:8px"><span class="hex ${t}">${l}</span><span class="mu" style="font-size:17px">${t}</span></div></div></div>
+ <div class="lbl" style="margin-top:20px">Оновчтой matchmaking</div><div class="big">${e} <small>/ ${nx||"MAX"}</small></div>
+ <div class="bar"><i style="width:${pct}%"></i></div><div class="mu">${nx?`${nx-e} ELO → Level ${l+1}`:"Дээд түвшин"}</div>
+ <button class="cta" onclick="tab='play';render()">ТОГЛОХ</button></div>
+ <div class="g3"><div class="card"><div class="lbl">SF Coin</div><b class="gd">● ${me.coins||0}</b></div>
+ <div class="card"><div class="lbl">Өнөөдөр</div><b>${today}/3</b><div class="bar" style="margin:0"><i style="width:${Math.min(100,today/3*100)}%"></i></div><div class="mu">тоглолт</div></div>
+ <div class="card"><div class="lbl">Battle pass</div><b>Lv ${Math.floor(played/3)}</b><div class="mu">Season 1</div></div></div>
+ <div class="card"><div class="lbl">Онлайн найзууд</div><div style="margin-top:8px">${fr.map(u=>`<div class="row" onclick="openUser('${u.id}')" style="margin-bottom:6px"><span class="on-dot"></span>${esc(u.name)}</div>`).join("")||`<span class="mu">Одоогоор хэн ч онлайн биш</span>`}</div></div>
+ <div class="card row"><span style="font-size:24px">🎁</span><div class="sp"><b>Өнөөдрийн challenge</b><div class="mu">3 тоглолт тогло · ${Math.min(today,3)}/3</div></div></div>`;
+}
+function mcard(m,act){
+ const p=m.players||[],j=p.includes(me.id);
+ return `<div class="card"><div class="row"><div class="sp"><b>${esc(m.map)}</b><div class="mu">${fmt(m.time)} · ${p.length}/10</div></div>
+ ${act&&m.status!="pending"?`<button class="s ${j?"":"p"}" onclick="join('${m.id}',${j})">${j?"Гарах":"Нэгдэх"}</button>`:""}</div>
+ <div class="mu" style="margin-top:8px">${p.map(id=>`<span onclick="openUser('${id}')">${esc(users[id]?.name||"?")}</span>`).join(", ")||"Хэн ч бүртгүүлээгүй"}</div>
+ ${act?`<div class="row" style="margin-top:10px;flex-wrap:wrap">
+ ${j&&m.status!="pending"&&!isMod()?`<button class="s p" onclick="submitRes('${m.id}')">Дүн илгээх</button>`:""}
+ ${isMod()&&m.status=="pending"?`<button class="s p" onclick="finish('${m.id}')">🛡 Шалгах</button>`:""}
+ ${isMod()&&m.status!="pending"?`<button class="s" onclick="finish('${m.id}')">Дуусгах</button>`:""}
+ ${isAdmin()?`<button class="s" onclick="delM('${m.id}')">✕ Устгах</button>`:""}</div>`:""}
+ ${m.status=="pending"?`<div class="gd" style="margin-top:8px">⏳ Модератор шалгаж байна · илгээсэн: Баг ${m.winner} хожсон</div>${m.shot?`<img src="${m.shot}" style="width:100%;border-radius:10px;margin-top:8px" onclick="zoom(this.src)">`:""}`:""}
+ ${m.status=="played"?`<div style="margin-top:8px">Ялагч: <b class="or">Баг ${m.winner}</b></div>
+ <div style="margin-top:6px">${p.map((id,i)=>{const q=(m.quits||[]).includes(id),t=i<5?"A":"B";return `<div class="row" style="padding:3px 0"><span>${q?"🚪":"✅"}</span><span class="sp">${esc(users[id]?.name||"?")} <span class="mu">Баг ${t}${t==m.winner&&!q?" · хожсон":""}</span></span><span class="mu">${q?"гарсан":"тоглосон"}</span></div>`}).join("")}</div>
+ ${m.shot?`<img src="${m.shot}" style="width:100%;border-radius:10px;margin-top:8px" onclick="zoom(this.src)">`:""}`:""}</div>`}
+function play(){
+ const up=matches.filter(m=>m.status!="played"),past=matches.filter(m=>m.status=="played").reverse();
+ return `<h2>Тоглолтууд</h2>${isAdmin()?`<div class="card"><b>Админ: шинэ тоглолт</b><input id="mt" type="datetime-local" style="margin-top:8px"><select id="mm">${MAPS.map(x=>`<option>${x}</option>`).join("")}</select><button class="s p" onclick="addM()">Нэмэх</button></div>`:""}
+ ${up.map(m=>mcard(m,1)).join("")||`<p class="mu">Товлосон тоглолт алга.</p>`}
+ <h2 style="margin-top:20px">Өнгөрсөн тоглолтууд</h2>${past.slice(0,20).map(m=>mcard(m,0)).join("")||`<p class="mu">Хоосон.</p>`}`}
+function rank(){
+ const l=Object.values(users).map(u=>({...u,e:mapSel=="all"?u.elo:(1000+(u.mapElo?.[mapSel]||0))})).sort((a,b)=>b.e-a.e).slice(0,100);
+ return `<h2>Чансаа</h2><select onchange="mapSel=this.value;render()"><option value="all">Бүх газар</option>${MAPS.map(x=>`<option ${x==mapSel?"selected":""}>${x}</option>`).join("")}</select>`+
+ l.map((u,i)=>`<div class="card row" style="padding:10px" onclick="openUser('${u.id}')"><b style="width:24px">${i+1}</b>${av(u)}<span class="sp">${esc(u.name)}<div class="mu">${u.wins||0}Я / ${u.losses||0}Х</div></span><b class="or">${u.e}</b></div>`).join("")}
+function friends(){
+ const fl=(me.friends||[]).map(id=>users[id]).filter(Boolean);
+ return `<h2>Найзууд</h2><div class="card"><div class="mu">Миний ID</div><b class="or" style="font-size:26px">${esc(me.friendId)}</b>
+ <div class="row" style="margin-top:12px"><input id="fid" placeholder="Найзын ID" style="margin:0"><button class="s p" onclick="addByID()">Нэмэх</button></div></div>`+
+ (fl.map(u=>`<div class="card row" style="padding:10px" onclick="openUser('${u.id}')">${av(u)}<span class="sp">${online(u)?'<span class="on-dot"></span>':""}${esc(u.name)}</span><b class="or">${u.elo}</b></div>`).join("")||`<p class="mu">Найз алга. Профайл дээр дараад нэмж болно.</p>`)}
+function shop(){return `<h2>Дэлгүүр</h2><div class="card"><div class="lbl">Таны SF Coin</div><b class="gd" style="font-size:30px">● ${me.coins||0}</b><p class="mu">Тоглолт тоглож coin цуглуул. Дэлгүүр удахгүй нээгдэнэ.</p></div>`}
+function prof(){
+ return `<h2>Профайл</h2><div class="card"><div class="row" style="margin-bottom:12px">${av(me,"xl")}<div class="sp mu">Зураг солих<input type="file" accept="image/*" onchange="setPic(this.files[0])" style="margin-top:6px"></div></div>
+ <input id="nm" value="${esc(me.name)}" maxlength="20"><button class="s p" onclick="saveName()">Нэр хадгалах</button></div>
+ ${isAdmin()?`<div class="card"><b>🛡 Модераторууд</b>${Object.values(users).filter(u=>u.role=="mod").map(u=>`<div class="row" style="margin-top:8px">${av(u)}<span class="sp">${esc(u.name)}</span><button class="s" onclick="setMod('${u.id}',false)">Хасах</button></div>`).join("")}<div class="row" style="margin-top:10px"><input id="mid" placeholder="Тоглогчийн ID" style="margin:0"><button class="s p" onclick="addMod()">Нэмэх</button></div></div>`:""}
+ <div class="card">ELO <b class="or">${me.elo}</b> · Хожил ${me.wins||0} · Хожигдол ${me.losses||0}</div><button class="s" onclick="auth.signOut()">Гарах</button>`}
+function openUser(id){const u=users[id];if(!u)return;const f=id==me.id||(me.friends||[]).includes(id),l=lvl(u.elo);
+ $("#mb").innerHTML=`<div class="row">${av(u)}<b class="sp">${u.role=="mod"?"🛡 ":""}${esc(u.name)}</b><span class="hex ${tier(l)}">${l}</span></div><p class="mu">ELO ${u.elo} · Я ${u.wins||0} · Х ${u.losses||0} · Гарсан ${u.quits||0}</p>
+ ${f?"":`<button class="s p" onclick="addFriend('${id}')">Найзаар нэмэх</button> `}<button class="s" onclick="$('#modal').style.display='none'">Хаах</button>`;$("#modal").style.display="flex"}
+async function addFriend(id){await ur().update({friends:FV.arrayUnion(id)});$("#modal").style.display="none"}
+async function addByID(){const v=$("#fid").value.trim(),u=Object.values(users).find(x=>x.friendId==v);if(!u||u.id==me.id)return alert("ID олдсонгүй");addFriend(u.id)}
+async function saveName(){const n=$("#nm").value.trim();if(n)await ur().update({name:n});document.activeElement.blur();render()}
+function setPic(f){if(!f)return;const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const c=document.createElement("canvas");c.width=c.height=160;const x=c.getContext("2d"),s=Math.min(i.width,i.height);x.drawImage(i,(i.width-s)/2,(i.height-s)/2,s,s,0,0,160,160);ur().update({photo:c.toDataURL("image/jpeg",.8)})};i.src=r.result};r.readAsDataURL(f)}
+async function join(id,j){if(!j&&(matches.find(x=>x.id==id).players||[]).length>=10)return alert("Дүүрсэн");await db.collection("matches").doc(id).update({players:j?FV.arrayRemove(me.id):FV.arrayUnion(me.id)})}
+async function addM(){const t=$("#mt").value;if(!t)return alert("Цаг сонгоно уу");await db.collection("matches").add({time:new Date(t).toISOString(),map:$("#mm").value,players:[],status:"upcoming"});document.activeElement.blur()}
+async function delM(id){if(confirm("Устгах уу?"))await db.collection("matches").doc(id).delete()}
+function finish(id){const m=matches.find(x=>x.id==id),p=m.players||[],pen=m.status=="pending";window._shot=null;
+ $("#mb").innerHTML=`<b>${pen?"🛡 Дүн шалгах":"Тоглолт дуусгах"} · ${esc(m.map)}</b>
+ ${pen?(m.shot?`<div class="mu" style="margin-top:6px">Илгээсэн screenshot. Жинхэнэ эсэхийг шалга (дарж томруулна).</div><img src="${m.shot}" style="width:100%;border-radius:10px;margin-top:6px" onclick="zoom(this.src)">`:`<div class="mu">Screenshot байхгүй</div>`):""}
+ <div class="mu" style="margin:10px 0 4px">Ялсан баг</div><select id="fw"><option value="A" ${m.winner=="A"?"selected":""}>Баг A (эхний 5)</option><option value="B" ${m.winner=="B"?"selected":""}>Баг B (сүүлийн 5)</option></select>
+ <div class="mu" style="margin:4px 0">Дуустал тоглосныг тэмдэглэ, гарсныг тайл</div>
+ ${p.map((pid,i)=>`<label class="row" style="padding:5px 0"><input type="checkbox" class="pl" value="${pid}" checked style="width:22px;height:22px;margin:0"><span class="sp">${esc(users[pid]?.name||"?")} <span class="mu">Баг ${i<5?"A":"B"}</span></span></label>`).join("")}
+ ${pen?"":`<div class="mu" style="margin:10px 0 4px">Дүнгийн screenshot</div><input type="file" accept="image/*" onchange="pickShot(this.files[0])">`}
+ <div class="row" style="flex-wrap:wrap;margin-top:6px"><button class="s p" onclick="saveFinish('${id}')">✅ Батлах, ELO өгөх</button>${pen?`<button class="s" onclick="rejectRes('${id}')">❌ Татгалзах</button>`:""}<button class="s" onclick="$('#modal').style.display='none'">Хаах</button></div>`;
+ $("#modal").style.display="flex"}
+function pickShot(f){if(!f)return;const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const k=Math.min(1,800/i.width),c=document.createElement("canvas");c.width=i.width*k;c.height=i.height*k;c.getContext("2d").drawImage(i,0,0,c.width,c.height);window._shot=c.toDataURL("image/jpeg",.55)};i.src=r.result};r.readAsDataURL(f)}
+function zoom(src){const d=document.createElement("div");d.style.cssText="position:fixed;inset:0;background:#000e;z-index:20;display:grid;place-items:center;overflow:auto";d.innerHTML=`<img src="${src}" style="max-width:100%;max-height:100%">`;d.onclick=()=>d.remove();document.body.appendChild(d)}
+function submitRes(id){window._shot=null;$("#mb").innerHTML=`<b>Дүн илгээх</b><p class="mu">Тоглолтын дүнгийн screenshot оруул. Модератор шалгаад баталмагц ELO орно.</p><select id="sw"><option value="A">Баг A хожсон</option><option value="B">Баг B хожсон</option></select><input type="file" accept="image/*" onchange="pickShot(this.files[0])"><div class="row"><button class="s p" onclick="saveSubmit('${id}')">Илгээх</button><button class="s" onclick="$('#modal').style.display='none'">Болих</button></div>`;$("#modal").style.display="flex"}
+async function saveSubmit(id){if(!window._shot)return alert("Эхлээд screenshot сонгоно уу (1-2 секунд хүлээгээд дахин дарна)");
+ try{await db.collection("matches").doc(id).update({status:"pending",winner:$("#sw").value,shot:window._shot,submittedBy:me.id});$("#modal").style.display="none"}catch(e){alert(e.message)}}
+async function rejectRes(id){if(!confirm("Татгалзах уу? Тоглогч дахин илгээнэ."))return;
+ try{await db.collection("matches").doc(id).update({status:"upcoming",winner:"",shot:"",rejectedBy:me.id});$("#modal").style.display="none"}catch(e){alert(e.message)}}
+async function saveFinish(id){const m=matches.find(x=>x.id==id),p=m.players||[],w=$("#fw").value,shot=window._shot||m.shot||"";
+ if(!shot)return alert("Баталгаажуулахад screenshot заавал хэрэгтэй");
+ const ok=[...document.querySelectorAll(".pl:checked")].map(x=>x.value),quits=p.filter(x=>!ok.includes(x)),b=db.batch();
+ p.forEach((pid,i)=>{const q=quits.includes(pid),win=!q&&(i<5?"A":"B")==w;
+  b.update(db.collection("users").doc(pid),q?{elo:FV.increment(-50),losses:FV.increment(1),quits:FV.increment(1),["mapElo."+m.map]:FV.increment(-50)}:{elo:FV.increment(win?25:-25),wins:FV.increment(win?1:0),losses:FV.increment(win?0:1),coins:FV.increment(win?25:10),["mapElo."+m.map]:FV.increment(win?25:-25)})});
+ b.update(db.collection("matches").doc(id),{status:"played",winner:w,quits,shot,approvedBy:me.id});
+ try{await b.commit();$("#modal").style.display="none"}catch(e){alert(e.message)}}
+async function setMod(id,v){try{await db.collection("users").doc(id).update({role:v?"mod":FV.delete()})}catch(e){alert(e.message)}}
+function addMod(){const v=$("#mid").value.trim(),u=Object.values(users).find(x=>x.friendId==v);if(!u)return alert("ID олдсонгүй");setMod(u.id,true)}
+</script></body></html>
